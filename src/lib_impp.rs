@@ -2,8 +2,10 @@ use rand::Rng;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json;
+use std::collections::HashSet;
 use std::convert::TryFrom;
 use std::fs;
+use std::path::Path;
 
 #[derive(Debug)]
 pub enum Error {
@@ -38,6 +40,11 @@ pub fn import_googlesheet(httprequest: String, path: &str) -> bool {
     return true;
 }
 
+pub fn get_database_status(path: &str) -> bool {
+    let file_path = path.to_owned() + "database.json";
+    Path::new(&file_path).exists()
+}
+
 // Main function to generate a random question number
 pub fn generate_random_question(category: String, path: &str) -> i32 {
     i32::try_from(generate_random_question_number(
@@ -63,32 +70,27 @@ pub fn get_question_details(our_question_num: i32, path: &str) -> [String; 4] {
     array
 }
 
-// Main function to return 4 distractors to our question
-pub fn get_mc_distractors(question_num: i32, jeopardy_mode: bool, path: &str) -> [String; 4] {
-    let questions_db = import_json_question_db(&path);
-    let distractor_vector = generate_mc_distractors(
-        &questions_db,
+// Main function to return a vector with max 4 distractors to our question
+pub fn get_mc_distractors(question_num: i32, jeopardy_mode: bool, path: &str) -> Vec<Question> {
+    generate_mc_distractors(
+        &import_json_question_db(&path),
         usize::try_from(question_num)
             .expect("Our question number could not be converted to usize."),
         jeopardy_mode,
         5,
-    );
-    // fill our array with "" values so we have something to pass to the JNI wrapper
-    let mut array: [String; 4] = [
-        String::from(""),
-        String::from(""),
-        String::from(""),
-        String::from(""),
-    ];
-    // fill the array with actual values
-    let mut i = 0;
-    while i < 4 {
-        if distractor_vector.len() > i && distractor_vector.len() != 0 {
-            array[i] = String::from(&distractor_vector[i].answer);
+    )
+}
+
+// Main function to return a vector with all categories
+pub fn get_categories(path: &str) -> HashSet<String> {
+    let questions_db = import_json_question_db(&path);
+    let mut categories = HashSet::new();
+    for item in &questions_db {
+        if !categories.contains(&item.category) {
+            categories.insert(String::from(&item.category));
         }
-        i += 1;
     }
-    array
+    categories
 }
 
 // read our questions_db. When calling the function, make sure that this database exists.
@@ -101,12 +103,7 @@ pub fn import_json_question_db(path: &str) -> Vec<Question> {
     questions_db
 }
 
-// Sample function
-pub fn input_to_output(input: String) -> String {
-    let output_str = "Input: ".to_string() + &input + " RUST output";
-    output_str
-}
-
+// Cut the title from a given httprequest
 pub fn return_title(input: String) -> String {
     let string_array: [String; 2] = [input, String::from("")];
     let begin_chars = "<title>";
@@ -134,8 +131,7 @@ pub fn get_question_vector(questions_db: &[Question], our_question_num: usize) -
     this_questions_vec
 }
 
-// IMPORTED LIB FILES
-
+// Extract database from http request string
 pub fn extract_from_raw_data(mut string_array: Vec<String>) -> Vec<Question> {
     let mut this_id: i32 = 0;
     let mut this_question: String;
@@ -195,6 +191,7 @@ pub fn extract_from_raw_data(mut string_array: Vec<String>) -> Vec<Question> {
     questions_db
 }
 
+// Extract a value from a string
 pub fn extract_field_value(string_array: &mut [String]) -> Result<(), Error> {
     if string_array.is_empty() {
         return Err(Error::Input);
@@ -232,6 +229,7 @@ pub fn extract_field_value(string_array: &mut [String]) -> Result<(), Error> {
     Ok(())
 }
 
+// Generate a random question number
 pub fn generate_random_question_number(questions_db: &[Question], topic: &str) -> usize // Todo: add weighting option https://rust-num.github.io/num/rand/distributions/struct.WeightedChoice.html | return a state if topic is not found
 {
     let mut this_number = rand::thread_rng().gen_range(0, questions_db.len());
@@ -254,6 +252,7 @@ pub fn generate_random_question_number(questions_db: &[Question], topic: &str) -
     this_number
 }
 
+// Generate MC distractors from the same category in our database
 pub fn generate_mc_distractors(
     questions_db: &[Question],
     our_question_num: usize,

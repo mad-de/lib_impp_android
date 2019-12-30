@@ -12,14 +12,6 @@ mod tests {
         use std::fs;
 
         #[test]
-        fn output_correct() {
-            assert!(
-                lib_impp::input_to_output("TEST".to_string())
-                    == "Input: TEST RUST output".to_string()
-            );
-        }
-
-        #[test]
         fn return_correct_title() {
             let sample_table =
                 String::from(fs::read_to_string("src/tests/sample_table.txt").unwrap());
@@ -56,25 +48,21 @@ mod tests {
 
         #[test]
         fn count_distractors_all() {
-            assert!(
-                lib_impp::get_mc_distractors(9, false, "src/tests/")
-                    .iter()
-                    .filter(|&n| *n == String::from(""))
-                    .count()
-                    == 4
-            );
+            assert!(lib_impp::get_mc_distractors(9, false, "src/tests/").len() == 0);
         }
 
         #[test]
         fn count_distractors_none() {
-            assert!(
-                lib_impp::get_mc_distractors(1, false, "src/tests/")
-                    .iter()
-                    .filter(|&n| *n == String::from(""))
-                    .count()
-                    == 0
-            );
+            assert!(lib_impp::get_mc_distractors(1, false, "src/tests/").len() == 4);
         }
 
+        #[test]
+        fn count_known_categories() {
+            assert!(lib_impp::get_categories("src/tests/").len() == 3);
+        }
+        #[test]
+        fn test_database_exists() {
+            assert!(lib_impp::get_database_status("src/tests/") == true);
+        }
     }
 }

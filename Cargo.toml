@@ -5,19 +5,11 @@ edition = "2018"
 authors = ["mad-de <cev_madde@msn.com>"]
 
 [dependencies]
-# webpage = "1"
 rand = "0.7"
 regex = "1.2"
-preferences = "1.1"
-# openssl = { version = "0.10", features = ["vendored"] }
-
 jni = { version = "0.10.2", default-features = false }
-
-
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-
-jni-android-sys = { version = "0.0.9", features = ["api-level-28"] }
 
 [profile.release]
 lto = true
