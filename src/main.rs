@@ -41,19 +41,32 @@ mod tests {
         #[test]
         fn get_known_question_details() {
             assert!(
-                lib_impp::get_question_details(2, "src/tests/")
+                lib_impp::get_question_details(2, false, "src/tests/")
                     == ["Fabella sign", "Displacement of the fabella that is seen in cases of synovial effusion and popliteal fossa masses", "Radiologic sign", ""]
             );
         }
 
         #[test]
-        fn count_distractors_all() {
-            assert!(lib_impp::get_mc_distractors(9, false, "src/tests/").len() == 0);
+        fn get_known_question_details_jeopardy_mode_true() {
+            assert!(
+                lib_impp::get_question_details(2, true, "src/tests/")
+                    == ["Displacement of the fabella that is seen in cases of synovial effusion and popliteal fossa masses", "Fabella sign", "Radiologic sign", ""]
+            );
         }
 
         #[test]
         fn count_distractors_none() {
-            assert!(lib_impp::get_mc_distractors(1, false, "src/tests/").len() == 4);
+            assert!(lib_impp::get_mc_distractors(9, 4, false, "src/tests/").len() == 0);
+        }
+
+        #[test]
+        fn count_distractors_all() {
+            assert!(lib_impp::get_mc_distractors(1, 4, false, "src/tests/").len() == 4);
+        }
+
+        #[test]
+        fn count_distractors_size3() {
+            assert!(lib_impp::get_mc_distractors(1, 3, false, "src/tests/").len() == 3);
         }
 
         #[test]

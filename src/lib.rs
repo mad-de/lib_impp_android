@@ -9,7 +9,7 @@ use std::ffi::{CStr, CString};
 
 pub static FILES_PATH: &str = "/data/user/0/com.example.android/files/";
 
-// Return Part of Java String
+// Return page Title
 #[no_mangle]
 pub unsafe extern "C" fn Java_com_example_android_MainActivity_getTitle(
     env: JNIEnv,
@@ -81,9 +81,10 @@ pub unsafe extern "C" fn Java_com_example_android_MainActivity_getQuestionDetail
     env: JNIEnv,
     _: JObject,
     question_num: i32,
+    jeopardy_mode: bool,
 ) -> jarray {
     let question_details_array: [String; 4] =
-        lib_impp::get_question_details(question_num, &FILES_PATH);
+        lib_impp::get_question_details(question_num, jeopardy_mode, &FILES_PATH);
     // Initialize our array with 4 empty Strings
     let array: jobjectArray = env
         .new_object_array(
@@ -118,10 +119,11 @@ pub unsafe extern "C" fn Java_com_example_android_MainActivity_getMCDistractors(
     env: JNIEnv,
     _: JObject,
     question_num: i32,
+    distractor_amount: i32,
     jeopardy_mode: bool,
 ) -> jarray {
     let question_details_vec =
-        lib_impp::get_mc_distractors(question_num, jeopardy_mode, &FILES_PATH);
+        lib_impp::get_mc_distractors(question_num, distractor_amount, jeopardy_mode, &FILES_PATH);
     // Initialize our array with the length of the vector
     let array: jobjectArray = env
         .new_object_array(

@@ -55,15 +55,21 @@ pub fn generate_random_question(category: String, path: &str) -> i32 {
 }
 
 // Main function to return a String with all details of our question.
-pub fn get_question_details(our_question_num: i32, path: &str) -> [String; 4] {
+pub fn get_question_details(our_question_num: i32, jeopardy_mode: bool, path: &str) -> [String; 4] {
     let question_details = get_question_vector(
         &import_json_question_db(path),
         usize::try_from(our_question_num)
             .expect("Our question number could not be converted to usize."),
     );
+    let mut this_question = String::from(&question_details[0].question);
+    let mut this_answer = String::from(&question_details[0].answer);
+    if jeopardy_mode == true {
+        this_question = String::from(&question_details[0].answer);
+        this_answer = String::from(&question_details[0].question);
+    }
     let array: [String; 4] = [
-        String::from(&question_details[0].question),
-        String::from(&question_details[0].answer),
+        this_question,
+        this_answer,
         String::from(&question_details[0].category),
         String::from(&question_details[0].extra),
     ];
@@ -71,13 +77,19 @@ pub fn get_question_details(our_question_num: i32, path: &str) -> [String; 4] {
 }
 
 // Main function to return a vector with max 4 distractors to our question
-pub fn get_mc_distractors(question_num: i32, jeopardy_mode: bool, path: &str) -> Vec<Question> {
+pub fn get_mc_distractors(
+    question_num: i32,
+    distractor_amount: i32,
+    jeopardy_mode: bool,
+    path: &str,
+) -> Vec<Question> {
     generate_mc_distractors(
         &import_json_question_db(&path),
         usize::try_from(question_num)
             .expect("Our question number could not be converted to usize."),
         jeopardy_mode,
-        5,
+        usize::try_from(distractor_amount)
+            .expect("Our distractor amount could not be converted to usize."),
     )
 }
 
@@ -261,7 +273,7 @@ pub fn generate_mc_distractors(
 ) -> Vec<Question> // Return a vector with x items with number 0 being the correct answer.
 {
     // check how many answers of our category are in our vector
-    let mut this_num_mc = num_mc_questions;
+    let mut this_num_mc = num_mc_questions + 1;
     let mut i = 0;
     let mut count_category_items = 0;
     let mut temp_question_num = rand::thread_rng().gen_range(0, questions_db.len());
