@@ -35,7 +35,7 @@ pub unsafe extern "C" fn Java_com_example_android_MainActivity_importfromGoogleS
     env: JNIEnv,
     _: JObject,
     j_recipient: JString,
-) -> bool {
+) -> i32 {
     lib_impp::import_googlesheet(
         CString::from(CStr::from_ptr(
             env.get_string(j_recipient).unwrap().as_ptr(),

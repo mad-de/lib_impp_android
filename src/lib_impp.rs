@@ -27,7 +27,7 @@ pub static BEGIN_ALT_EXTRA_CHARS: &str =
     r#"<div class="softmerge-inner" style="width: 512px; left: -1px;">"#;
 
 // Main function to import a http request from a Google Sheet
-pub fn import_googlesheet(httprequest: String, path: &str) -> bool {
+pub fn import_googlesheet(httprequest: String, path: &str) -> i32 {
     // Return Vec with our Questions database. Hand in Vector for easier handling.
     let questions_db = extract_from_raw_data([httprequest, String::from("")].to_vec());
     let file_path = path.to_owned() + "database.json";
@@ -37,7 +37,7 @@ pub fn import_googlesheet(httprequest: String, path: &str) -> bool {
     );
     fs::write(file_path.clone(), &data).expect("Writing the database file did not work.");
     // If saving file is not possible, process will break with an Error. If we get here, return true;
-    return true;
+    i32::try_from(questions_db.len()).expect("could not convert uszie to i32")
 }
 
 pub fn get_database_status(path: &str) -> bool {
@@ -47,9 +47,11 @@ pub fn get_database_status(path: &str) -> bool {
 
 // Main function to generate a random question number
 pub fn generate_random_question(category: String, path: &str) -> i32 {
+let mut this_category = "";
+if &category != "All" {this_category = &category; }
     i32::try_from(generate_random_question_number(
         &import_json_question_db(path),
-        &category,
+        this_category,
     ))
     .expect("Random number could not be converted to i32.")
 }
@@ -58,18 +60,13 @@ pub fn generate_random_question(category: String, path: &str) -> i32 {
 pub fn get_question_details(our_question_num: i32, jeopardy_mode: bool, path: &str) -> [String; 4] {
     let question_details = get_question_vector(
         &import_json_question_db(path),
+        jeopardy_mode,
         usize::try_from(our_question_num)
             .expect("Our question number could not be converted to usize."),
     );
-    let mut this_question = String::from(&question_details[0].question);
-    let mut this_answer = String::from(&question_details[0].answer);
-    if jeopardy_mode == true {
-        this_question = String::from(&question_details[0].answer);
-        this_answer = String::from(&question_details[0].question);
-    }
     let array: [String; 4] = [
-        this_question,
-        this_answer,
+        String::from(&question_details[0].question),
+        String::from(&question_details[0].answer),
         String::from(&question_details[0].category),
         String::from(&question_details[0].extra),
     ];
@@ -130,12 +127,22 @@ pub fn return_title(input: String) -> String {
 }
 
 // Return a vector with all details of one question
-pub fn get_question_vector(questions_db: &[Question], our_question_num: usize) -> Vec<Question> {
+pub fn get_question_vector(
+    questions_db: &[Question],
+    jeopardy_mode: bool,
+    our_question_num: usize,
+) -> Vec<Question> {
     let mut this_questions_vec = vec![];
+    let mut this_question = String::from(&questions_db[our_question_num].question);
+    let mut this_answer = String::from(&questions_db[our_question_num].answer);
+    if jeopardy_mode == true {
+        this_question = String::from(&questions_db[our_question_num].answer);
+        this_answer = String::from(&questions_db[our_question_num].question);
+    }
     let question0 = Question {
         id: questions_db[our_question_num].id,
-        question: String::from(&questions_db[our_question_num].question),
-        answer: String::from(&questions_db[our_question_num].answer),
+        question: this_question,
+        answer: this_answer,
         category: String::from(&questions_db[our_question_num].category),
         extra: String::from(&questions_db[our_question_num].extra),
     };
@@ -343,6 +350,80 @@ mod base_function_tests {
         #[test]
         fn known_database_result_num() {
             assert!(&import_json_question_db("src/tests/").len() == &usize::try_from(10).unwrap());
+        }
+    }
+}
+
+#[cfg(test)]
+mod module_tests {
+    use super::*;
+
+    mod main_modules {
+        use super::*;
+        use std::fs;
+
+        #[test]
+        fn return_correct_title() {
+            let sample_table =
+                String::from(fs::read_to_string("src/tests/sample_table.txt").unwrap());
+            assert!(return_title(sample_table) == "IMPP sample table".to_string());
+        }
+
+        // Check if result from an import equals our sample json file
+        #[test]
+        fn import_googlesheet_correct() {
+            let sample_table =
+                String::from(fs::read_to_string("src/tests/sample_table.txt").unwrap());
+            import_googlesheet(sample_table, &"target/");
+            assert!(
+                String::from(fs::read_to_string("target/database.json").unwrap())
+                    == String::from(fs::read_to_string("src/tests/sample_database.json").unwrap())
+            );
+        }
+
+        #[test]
+        fn generate_random_question_number_for_category() {
+            assert!(generate_random_question(String::from("Endocrinology"), "src/tests/") == 9);
+        }
+
+        #[test]
+        fn get_known_question_details() {
+            assert!(
+                get_question_details(2, false, "src/tests/")
+                    == ["Fabella sign", "Displacement of the fabella that is seen in cases of synovial effusion and popliteal fossa masses", "Radiologic sign", ""]
+            );
+        }
+
+        #[test]
+        fn get_known_question_details_jeopardy_mode_true() {
+            assert!(
+                get_question_details(2, true, "src/tests/")
+                    == ["Displacement of the fabella that is seen in cases of synovial effusion and popliteal fossa masses", "Fabella sign", "Radiologic sign", ""]
+            );
+        }
+
+        #[test]
+        fn count_distractors_none() {
+            assert!(get_mc_distractors(9, 4, false, "src/tests/").len() == 0);
+        }
+
+        #[test]
+        fn count_distractors_all() {
+            assert!(get_mc_distractors(1, 4, false, "src/tests/").len() == 4);
+        }
+
+        #[test]
+        fn count_distractors_size3() {
+            assert!(get_mc_distractors(1, 3, false, "src/tests/").len() == 3);
+        }
+
+        #[test]
+        fn count_known_categories() {
+            assert!(get_categories("src/tests/").len() == 3);
+        }
+        #[test]
+        fn test_database_exists() {
+            assert!(get_database_status("src/tests/") == true);
         }
     }
 }
