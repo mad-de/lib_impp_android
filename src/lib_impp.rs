@@ -41,9 +41,13 @@ pub fn get_database_status(path: &str) -> bool {
 
 // Main function to generate a random question number
 pub fn generate_random_question(category: String, path: &str) -> i32 {
+    let mut this_category = "";
+    if &category != "All" {
+        this_category = &category;
+    }
     i32::try_from(generate_random_question_number(
         &import_json_question_db(path),
-        &category,
+        this_category,
     ))
     .expect("Random number could not be converted to i32.")
 }
