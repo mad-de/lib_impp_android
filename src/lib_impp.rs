@@ -1,7 +1,6 @@
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use serde_json;
-use std::collections::HashSet;
 use std::convert::TryFrom;
 use std::fs;
 use std::path::Path;
@@ -87,15 +86,18 @@ pub fn get_mc_distractors(
 }
 
 // Main function to return a vector with all categories
-pub fn get_categories(path: &str) -> HashSet<String> {
+pub fn get_categories(path: &str) -> Vec<String> {
     let questions_db = import_json_question_db(&path);
-    let mut categories = HashSet::new();
-    categories.insert(String::from("All"));
+    let mut categories = Vec::new();
+    categories.push(String::from("All"));
     for item in &questions_db {
         if !categories.contains(&item.category) {
-            categories.insert(String::from(&item.category));
+            categories.push(String::from(&item.category));
         }
     }
+    categories[0] = String::from("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    categories.sort();
+    categories[0] = String::from("All");
     categories
 }
 
