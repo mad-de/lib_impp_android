@@ -285,8 +285,8 @@ pub fn generate_mc_distractors(
         i += 1;
     }
 
-    if count_category_items < num_mc_questions {
-        this_num_mc = count_category_items;
+    if (count_category_items - 1) < num_mc_questions {
+        this_num_mc = count_category_items - 1;
     }
 
     // Build two arrays (one where all the answers are saved which we don't want to use anymore and one where all answers are saved.
