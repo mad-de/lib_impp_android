@@ -20,7 +20,7 @@ pub struct Question {
 }
 
 // Main function to import a http request from a Google Sheet
-pub fn import_googlesheet(httprequest: String, path: &str) -> String {
+pub fn import_googlesheet(httprequest: String, path: &str) -> i32 {
     // Return Vec with our Questions database. Hand in Vector for easier handling.
     let questions_db = extract_from_raw_data([httprequest, String::from("")].to_vec());
     let file_path = path.to_owned() + "database.json";
