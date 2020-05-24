@@ -11,7 +11,7 @@ pub static FILES_PATH: &str = "/data/user/0/com.example.android/files/";
 
 // Return page Title
 #[no_mangle]
-pub unsafe extern "C" fn Java_com_example_android_MainActivity_getTitle(
+pub unsafe extern "C" fn Java_com_example_android_BackendInterface_getTitle(
     env: JNIEnv,
     _: JObject,
     j_recipient: JString,
@@ -29,6 +29,7 @@ pub unsafe extern "C" fn Java_com_example_android_MainActivity_getTitle(
     .into_inner()
 }
 
+/* BROKEN QUICKFIX
 // Return true when database is built
 #[no_mangle]
 pub unsafe extern "C" fn Java_com_example_android_MainActivity_importfromGoogleSheet(
@@ -46,10 +47,31 @@ pub unsafe extern "C" fn Java_com_example_android_MainActivity_importfromGoogleS
         &FILES_PATH,
     )
 }
+*/
+
+// Return JSON String with database from a googlesheet html
+#[no_mangle]
+pub unsafe extern "C" fn Java_com_example_android_BackendInterface_importfromGoogleSheet(
+    env: JNIEnv,
+    _: JObject,
+    j_recipient: JString,
+) -> jstring {
+    env.new_string(lib_impp::import_googlesheet(
+        CString::from(CStr::from_ptr(
+            env.get_string(j_recipient).unwrap().as_ptr(),
+        ))
+        .to_str()
+        .unwrap()
+        .to_string(),
+        &FILES_PATH,
+    ))
+    .unwrap()
+    .into_inner()
+}
 
 // Return true when database exists
 #[no_mangle]
-pub unsafe extern "C" fn Java_com_example_android_MainActivity_getDatabaseStatus(
+pub unsafe extern "C" fn Java_com_example_android_BackendInterface_getDatabaseStatus(
     _env: JNIEnv,
     _: JObject,
     _j_recipient: JString,
@@ -59,7 +81,7 @@ pub unsafe extern "C" fn Java_com_example_android_MainActivity_getDatabaseStatus
 
 // Return a i32 as number for a random question
 #[no_mangle]
-pub unsafe extern "C" fn Java_com_example_android_MainActivity_getRandomQuestion(
+pub unsafe extern "C" fn Java_com_example_android_BackendInterface_getRandomQuestion(
     env: JNIEnv,
     _: JObject,
     j_recipient: JString,
@@ -77,7 +99,7 @@ pub unsafe extern "C" fn Java_com_example_android_MainActivity_getRandomQuestion
 
 // Return Array with a Question Element
 #[no_mangle]
-pub unsafe extern "C" fn Java_com_example_android_MainActivity_getQuestionDetails(
+pub unsafe extern "C" fn Java_com_example_android_BackendInterface_getQuestionDetails(
     env: JNIEnv,
     _: JObject,
     question_num: i32,
@@ -115,7 +137,7 @@ pub unsafe extern "C" fn Java_com_example_android_MainActivity_getQuestionDetail
 
 // Return Array from Vector with Multiple-Choice Distractors
 #[no_mangle]
-pub unsafe extern "C" fn Java_com_example_android_MainActivity_getMCDistractors(
+pub unsafe extern "C" fn Java_com_example_android_BackendInterface_getMCDistractors(
     env: JNIEnv,
     _: JObject,
     question_num: i32,
@@ -155,7 +177,7 @@ pub unsafe extern "C" fn Java_com_example_android_MainActivity_getMCDistractors(
 
 // Return Array from HashMap with all categories
 #[no_mangle]
-pub unsafe extern "C" fn Java_com_example_android_MainActivity_getCategories(
+pub unsafe extern "C" fn Java_com_example_android_BackendInterface_getCategories(
     env: JNIEnv,
     _: JObject,
     _j_recipient: JString,
