@@ -20,15 +20,19 @@ pub struct Question {
 }
 
 // Main function to import a http request from a Google Sheet
-pub fn import_googlesheet(httprequest: String, path: &str) -> i32 {
+pub fn import_googlesheet(httprequest: String, path: &str) -> String {
     // Return Vec with our Questions database. Hand in Vector for easier handling.
     let questions_db = extract_from_raw_data([httprequest, String::from("")].to_vec());
     let file_path = path.to_owned() + "database.json";
+
+/* Writing files is borken on some devices. HOTFIX 
     // Serialize our Questions database to json
     let data = String::from(         serde_json::to_string(&questions_db).expect("Transferring Vector to JSON failed."),     );
     fs::write(file_path.clone(), &data).expect("Writing the database file did not work.");
     // If saving file is not possible, process will break with an Error. If we get here, return number of items;
-    i32::try_from(questions_db.len()).expect("could not convert usize to i32")
+    i32::try_from(questions_db.len()).expect("could not convert uszie to i32")
+*/
+    String::from(         serde_json::to_string(&questions_db).expect("Transferring Vector to JSON failed."),     )
 }
 
 pub fn get_database_status(path: &str) -> bool {
