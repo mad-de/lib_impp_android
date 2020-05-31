@@ -20,24 +20,27 @@ pub struct Question {
 }
 
 // Main function to import a http request from a Google Sheet
-pub fn import_googlesheet(httprequest: String, path: &str) -> String {
+pub fn import_googlesheet(httprequest: String, _path: &str) -> String {
     // Return Vec with our Questions database. Hand in Vector for easier handling.
     let questions_db = extract_from_raw_data([httprequest, String::from("")].to_vec());
+    /* Writing files is borken on some devices. HOTFIX
     let file_path = path.to_owned() + "database.json";
-
-/* Writing files is borken on some devices. HOTFIX 
-    // Serialize our Questions database to json
-    let data = String::from(         serde_json::to_string(&questions_db).expect("Transferring Vector to JSON failed."),     );
-    fs::write(file_path.clone(), &data).expect("Writing the database file did not work.");
-    // If saving file is not possible, process will break with an Error. If we get here, return number of items;
-    i32::try_from(questions_db.len()).expect("could not convert uszie to i32")
-*/
-    String::from(         serde_json::to_string(&questions_db).expect("Transferring Vector to JSON failed."),     )
+        // Serialize our Questions database to json
+        let data = String::from(         serde_json::to_string(&questions_db).expect("Transferring Vector to JSON failed."),     );
+        fs::write(file_path.clone(), &data).expect("Writing the database file did not work.");
+        // If saving file is not possible, process will break with an Error. If we get here, return number of items;
+        i32::try_from(questions_db.len()).expect("could not convert uszie to i32")
+    */
+    String::from(serde_json::to_string(&questions_db).expect("Transferring Vector to JSON failed."))
 }
 
 pub fn get_database_status(path: &str) -> bool {
     let file_path = path.to_owned() + "database.json";
     Path::new(&file_path).exists()
+}
+
+pub fn check_googlesheet_url(url: String) -> bool {
+    url.contains("docs.google.com/spreadsheets/d/")
 }
 
 // Main function to generate a random question number
@@ -198,15 +201,17 @@ pub fn extract_from_raw_data(mut string_array: Vec<String>) -> Vec<Question> {
     for replace_container in &containers_remove {
         while string_array[0].contains(replace_container) {
             let container_pos = string_array[0].find(replace_container).unwrap();
-            let close_container_pos = string_array[0][container_pos..].find(">").unwrap() + 1 + container_pos;
+            let close_container_pos =
+                string_array[0][container_pos..].find(">").unwrap() + 1 + container_pos;
 
-            string_array[0] = string_array[0][..container_pos].to_string() + &string_array[0][close_container_pos..].to_string();
+            string_array[0] = string_array[0][..container_pos].to_string()
+                + &string_array[0][close_container_pos..].to_string();
         }
     }
     let initial_row_string = "</th><td";
     string_array[1] = string_array[0].to_string();
     // Main loop in this function: As long as I can find a start string (indicating the begin of a new row) I'll run this
-while string_array[1].contains(initial_row_string) {
+    while string_array[1].contains(initial_row_string) {
         // find the first position, add the length of our start string
         let pos = string_array[1]
             .find(initial_row_string)
@@ -359,7 +364,7 @@ mod module_tests {
                 return_title(sample_table) == "IMPP sample table - Google Tabellen".to_string()
             );
         }
-
+/* DISABLE FOR HOTFIX
         // Check if result from an import equals our sample json file
         #[test]
         fn import_googlesheet_correct() {
@@ -371,7 +376,7 @@ mod module_tests {
                     == String::from(fs::read_to_string("src/tests/sample_database.json").unwrap())
             );
         }
-
+*/
         #[test]
         fn generate_random_question_number_for_category() {
             assert!(generate_random_question(String::from("Endocrinology"), "src/tests/") == 9);
@@ -415,6 +420,10 @@ mod module_tests {
         #[test]
         fn test_database_exists() {
             assert!(get_database_status("src/tests/") == true);
+        }
+        #[test]
+        fn check_googlesheet_urls() {
+            assert!(check_googlesheet_url("https://docs.google.com/spreadsheets/d/14fNP2Elca82rryRJ8-a_XwH3_oZgrJyXqh7r7Q7GuEc/edit#gid=0".to_string()) == true && check_googlesheet_url("https://google.com".to_string()) == false);
         }
     }
 }

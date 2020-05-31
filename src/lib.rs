@@ -79,6 +79,23 @@ pub unsafe extern "C" fn Java_com_example_android_BackendInterface_getDatabaseSt
     lib_impp::get_database_status(&FILES_PATH)
 }
 
+// checks a google sheet url wether its valid or not
+#[no_mangle]
+pub unsafe extern "C" fn Java_com_example_android_BackendInterface_checkGoogleSheetURL(
+    env: JNIEnv,
+    _: JObject,
+    j_recipient: JString,
+) -> bool {
+    lib_impp::check_googlesheet_url(
+        CString::from(CStr::from_ptr(
+            env.get_string(j_recipient).unwrap().as_ptr(),
+        ))
+        .to_str()
+        .unwrap()
+        .to_string()
+    )
+}
+
 // Return a i32 as number for a random question
 #[no_mangle]
 pub unsafe extern "C" fn Java_com_example_android_BackendInterface_getRandomQuestion(
