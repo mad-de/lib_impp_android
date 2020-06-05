@@ -29,8 +29,7 @@ pub unsafe extern "C" fn Java_com_impp_grow_BackendInterface_getTitle(
     .into_inner()
 }
 
-/* BROKEN QUICKFIX
-// Return true when database is built
+// Returns an i32 with the number of imported questions
 #[no_mangle]
 pub unsafe extern "C" fn Java_com_impp_grow_MainActivity_importfromGoogleSheet(
     env: JNIEnv,
@@ -46,27 +45,6 @@ pub unsafe extern "C" fn Java_com_impp_grow_MainActivity_importfromGoogleSheet(
         .to_string(),
         &FILES_PATH,
     )
-}
-*/
-
-// Return JSON String with database from a googlesheet html
-#[no_mangle]
-pub unsafe extern "C" fn Java_com_impp_grow_BackendInterface_importfromGoogleSheet(
-    env: JNIEnv,
-    _: JObject,
-    j_recipient: JString,
-) -> jstring {
-    env.new_string(lib_impp::import_googlesheet(
-        CString::from(CStr::from_ptr(
-            env.get_string(j_recipient).unwrap().as_ptr(),
-        ))
-        .to_str()
-        .unwrap()
-        .to_string(),
-        &FILES_PATH,
-    ))
-    .unwrap()
-    .into_inner()
 }
 
 // Return true when database exists
@@ -92,7 +70,7 @@ pub unsafe extern "C" fn Java_com_impp_grow_BackendInterface_checkGoogleSheetURL
         ))
         .to_str()
         .unwrap()
-        .to_string()
+        .to_string(),
     )
 }
 
