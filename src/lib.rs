@@ -7,11 +7,11 @@ use jni::JNIEnv;
 use std::convert::TryFrom;
 use std::ffi::{CStr, CString};
 
-pub static FILES_PATH: &str = "/data/user/0/com.example.android/files/";
+pub static FILES_PATH: &str = "/data/user/0/com.impp.grow/files/";
 
 // Return page Title
 #[no_mangle]
-pub unsafe extern "C" fn Java_com_example_android_BackendInterface_getTitle(
+pub unsafe extern "C" fn Java_com_impp_grow_BackendInterface_getTitle(
     env: JNIEnv,
     _: JObject,
     j_recipient: JString,
@@ -32,7 +32,7 @@ pub unsafe extern "C" fn Java_com_example_android_BackendInterface_getTitle(
 /* BROKEN QUICKFIX
 // Return true when database is built
 #[no_mangle]
-pub unsafe extern "C" fn Java_com_example_android_MainActivity_importfromGoogleSheet(
+pub unsafe extern "C" fn Java_com_impp_grow_MainActivity_importfromGoogleSheet(
     env: JNIEnv,
     _: JObject,
     j_recipient: JString,
@@ -51,7 +51,7 @@ pub unsafe extern "C" fn Java_com_example_android_MainActivity_importfromGoogleS
 
 // Return JSON String with database from a googlesheet html
 #[no_mangle]
-pub unsafe extern "C" fn Java_com_example_android_BackendInterface_importfromGoogleSheet(
+pub unsafe extern "C" fn Java_com_impp_grow_BackendInterface_importfromGoogleSheet(
     env: JNIEnv,
     _: JObject,
     j_recipient: JString,
@@ -71,7 +71,7 @@ pub unsafe extern "C" fn Java_com_example_android_BackendInterface_importfromGoo
 
 // Return true when database exists
 #[no_mangle]
-pub unsafe extern "C" fn Java_com_example_android_BackendInterface_getDatabaseStatus(
+pub unsafe extern "C" fn Java_com_impp_grow_BackendInterface_getDatabaseStatus(
     _env: JNIEnv,
     _: JObject,
     _j_recipient: JString,
@@ -81,7 +81,7 @@ pub unsafe extern "C" fn Java_com_example_android_BackendInterface_getDatabaseSt
 
 // checks a google sheet url wether its valid or not
 #[no_mangle]
-pub unsafe extern "C" fn Java_com_example_android_BackendInterface_checkGoogleSheetURL(
+pub unsafe extern "C" fn Java_com_impp_grow_BackendInterface_checkGoogleSheetURL(
     env: JNIEnv,
     _: JObject,
     j_recipient: JString,
@@ -98,7 +98,7 @@ pub unsafe extern "C" fn Java_com_example_android_BackendInterface_checkGoogleSh
 
 // Return a i32 as number for a random question
 #[no_mangle]
-pub unsafe extern "C" fn Java_com_example_android_BackendInterface_getRandomQuestion(
+pub unsafe extern "C" fn Java_com_impp_grow_BackendInterface_getRandomQuestion(
     env: JNIEnv,
     _: JObject,
     j_recipient: JString,
@@ -116,7 +116,7 @@ pub unsafe extern "C" fn Java_com_example_android_BackendInterface_getRandomQues
 
 // Return Array with a Question Element
 #[no_mangle]
-pub unsafe extern "C" fn Java_com_example_android_BackendInterface_getQuestionDetails(
+pub unsafe extern "C" fn Java_com_impp_grow_BackendInterface_getQuestionDetails(
     env: JNIEnv,
     _: JObject,
     question_num: i32,
@@ -154,7 +154,7 @@ pub unsafe extern "C" fn Java_com_example_android_BackendInterface_getQuestionDe
 
 // Return Array from Vector with Multiple-Choice Distractors
 #[no_mangle]
-pub unsafe extern "C" fn Java_com_example_android_BackendInterface_getMCDistractors(
+pub unsafe extern "C" fn Java_com_impp_grow_BackendInterface_getMCDistractors(
     env: JNIEnv,
     _: JObject,
     question_num: i32,
@@ -194,7 +194,7 @@ pub unsafe extern "C" fn Java_com_example_android_BackendInterface_getMCDistract
 
 // Return Array from HashMap with all categories
 #[no_mangle]
-pub unsafe extern "C" fn Java_com_example_android_BackendInterface_getCategories(
+pub unsafe extern "C" fn Java_com_impp_grow_BackendInterface_getCategories(
     env: JNIEnv,
     _: JObject,
     _j_recipient: JString,
@@ -221,29 +221,3 @@ pub unsafe extern "C" fn Java_com_example_android_BackendInterface_getCategories
     }
     array
 }
-
-/*
-// Return Arraylist - TODO - SIGABRT 6
-#[no_mangle]
-pub unsafe extern "C" fn Java_com_example_android_MainActivity_getArraylist(
-    env: JNIEnv,
-    _: JObject,
-    _question_num: i32
-) -> jobject {
-    let cls_arraylist = env.find_class("java/util/ArrayList").unwrap();
-    let arraylist = env.new_object(cls_arraylist, "()V", &[]).unwrap();
-    let mut i = 0;
-    while i < 7 {
-        // Add items
-        env.call_method(
-            arraylist,
-            "add",
-            "(Ljava/lang/Object;)Z",
-            &[JValue::from(JObject::from(env.new_string("PETER".to_string()).unwrap()))],
-        )
-        .unwrap();
-        i += 1;
-    }
-    *arraylist
-}
-*/
