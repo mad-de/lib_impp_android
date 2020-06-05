@@ -367,19 +367,18 @@ mod module_tests {
                 return_title(sample_table) == "IMPP sample table - Google Tabellen".to_string()
             );
         }
-        /* DISABLE FOR HOTFIX
-                // Check if result from an import equals our sample json file
-                #[test]
-                fn import_googlesheet_correct() {
-                    let sample_table =
-                        String::from(fs::read_to_string("src/tests/sample_table.txt").unwrap());
-                    import_googlesheet(sample_table, &"target/");
-                    assert!(
-                        String::from(fs::read_to_string("target/database.json").unwrap())
-                            == String::from(fs::read_to_string("src/tests/sample_database.json").unwrap())
-                    );
-                }
-        */
+        // Check if result from an import equals our sample json file
+        #[test]
+        fn import_googlesheet_correct() {
+            let sample_table =
+                String::from(fs::read_to_string("src/tests/sample_table.txt").unwrap());
+            import_googlesheet(sample_table, &"target/");
+            assert!(
+                String::from(fs::read_to_string("target/database.json").unwrap())
+                    == String::from(fs::read_to_string("src/tests/sample_database.json").unwrap())
+            );
+        }
+
         #[test]
         fn generate_random_question_number_for_category() {
             assert!(generate_random_question(String::from("Endocrinology"), "src/tests/") == 9);
