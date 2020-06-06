@@ -31,7 +31,7 @@ pub unsafe extern "C" fn Java_com_impp_grow_BackendInterface_getTitle(
 
 // Returns an i32 with the number of imported questions
 #[no_mangle]
-pub unsafe extern "C" fn Java_com_impp_grow_MainActivity_importfromGoogleSheet(
+pub unsafe extern "C" fn Java_com_impp_grow_BackendInterface_importfromGoogleSheet(
     env: JNIEnv,
     _: JObject,
     j_recipient: JString,
